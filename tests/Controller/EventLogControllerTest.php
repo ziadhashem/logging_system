@@ -3,6 +3,7 @@
 namespace App\Test\Controller;
 
 use App\Entity\EventLog;
+use App\Entity\User;
 use App\Repository\EventLogRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -24,35 +25,39 @@ class EventLogControllerTest extends WebTestCase
         }
     }
 
-//    public function testIndex(): void
-//    {
-//        $crawler = $this->client->request('GET', $this->path);
-//
-//        self::assertResponseStatusCodeSame(200);
-//        self::assertPageTitleContains('EventLog index');
-//
-//        // Use the $crawler to perform additional assertions e.g.
-//        // self::assertSame('Some text on the page', $crawler->filter('.p')->first());
-//    }
-
-    public function testNew(): void
+    public function testIndex(): void
     {
-        // get or create the user somehow (e.g. creating some users only
-        // for tests while loading the test fixtures)
-        $userRepository = static::$container->get(UserRepository::class);
-        $testUser = $userRepository->findOneByEmail("ziad@ziad.com");
-//
-        dump($testUser); die();
-//        $this->client->loginUser($testUser);
-
-        // user is now logged in,
-        $originalNumObjectsInRepository = count($this->repository->findAll());
-
-//        $this->markTestIncomplete("ziad");
-        $this->client->request('GET', sprintf('%snew', $this->path));
+        $crawler = $this->client->request('GET', $this->path);
 
         self::assertResponseStatusCodeSame(200);
+        self::assertPageTitleContains('Project index');
 
+        // Use the $crawler to perform additional assertions e.g.
+        // self::assertSame('Some text on the page', $crawler->filter('.p')->first());
+    }
+
+
+//
+    public function testNew(): void
+    {
+        // Arrange
+        $username = 'ziad@ziad.com';
+        $password = '12345678';
+        $hashedPassword = '$2y$13$pG.vEVVkJqdcQKXWMHVKh.VpNsLKXrzRX.SbDJSCRWFSf/vfA1N8m';
+
+        $user = new User();
+        $user->setEmail($username);
+        $user->setPassword($hashedPassword);
+        $this->client->loginUser($user);
+
+//        // user is now logged in,
+        $originalNumObjectsInRepository = count($this->repository->findAll());
+//
+//        $this->markTestIncomplete("ziad");
+        $this->client->request('POST', sprintf('%snew', $this->path));
+//
+        self::assertResponseStatusCodeSame(200);
+//
         $this->client->submitForm('Save', [
             'event_log[title]' => 'Testing title',
             'event_log[description]' => 'Testing description',
@@ -65,75 +70,75 @@ class EventLogControllerTest extends WebTestCase
         self::assertSame($originalNumObjectsInRepository + 1, count($this->repository->findAll()));
     }
 
-//    public function testShow(): void
-//    {
+    public function testShow(): void
+    {
+        $this->markTestIncomplete();
+        $fixture = new EventLog();
+        $fixture->setTitle('My Title');
+        $fixture->setDescription('My Title');
+        $fixture->setCreated_at('My Title');
+        $fixture->setUpdated_at('My Title');
+
+        $this->repository->add($fixture, true);
+
+        $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));
+
+        self::assertResponseStatusCodeSame(200);
+        self::assertPageTitleContains('EventLog');
+
+        // Use assertions to check that the properties are properly displayed.
+    }
+
+    public function testEdit(): void
+    {
+        $this->markTestIncomplete();
+        $fixture = new EventLog();
+        $fixture->setTitle('My Title');
+        $fixture->setDescription('My Title');
+        $fixture->setCreated_at('My Title');
+        $fixture->setUpdated_at('My Title');
+
+        $this->repository->add($fixture, true);
+
+        $this->client->request('GET', sprintf('%s%s/edit', $this->path, $fixture->getId()));
+
+        $this->client->submitForm('Update', [
+            'event_log[title]' => 'Something New',
+            'event_log[description]' => 'Something New',
+            'event_log[created_at]' => 'Something New',
+            'event_log[updated_at]' => 'Something New',
+        ]);
+
+        self::assertResponseRedirects('/event/log/');
+
+        $fixture = $this->repository->findAll();
+
+        self::assertSame('Something New', $fixture[0]->getTitle());
+        self::assertSame('Something New', $fixture[0]->getDescription());
+        self::assertSame('Something New', $fixture[0]->getCreated_at());
+        self::assertSame('Something New', $fixture[0]->getUpdated_at());
+    }
+
+    public function testRemove(): void
+    {
 //        $this->markTestIncomplete();
-//        $fixture = new EventLog();
-//        $fixture->setTitle('My Title');
-//        $fixture->setDescription('My Title');
+
+        $originalNumObjectsInRepository = count($this->repository->findAll());
+
+        $fixture = new EventLog();
+        $fixture->setTitle('My Title');
+        $fixture->setDescription('My Title');
 //        $fixture->setCreated_at('My Title');
 //        $fixture->setUpdated_at('My Title');
-//
-//        $this->repository->add($fixture, true);
-//
-//        $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));
-//
-//        self::assertResponseStatusCodeSame(200);
-//        self::assertPageTitleContains('EventLog');
-//
-//        // Use assertions to check that the properties are properly displayed.
-//    }
-//
-//    public function testEdit(): void
-//    {
-//        $this->markTestIncomplete();
-//        $fixture = new EventLog();
-//        $fixture->setTitle('My Title');
-//        $fixture->setDescription('My Title');
-//        $fixture->setCreated_at('My Title');
-//        $fixture->setUpdated_at('My Title');
-//
-//        $this->repository->add($fixture, true);
-//
-//        $this->client->request('GET', sprintf('%s%s/edit', $this->path, $fixture->getId()));
-//
-//        $this->client->submitForm('Update', [
-//            'event_log[title]' => 'Something New',
-//            'event_log[description]' => 'Something New',
-//            'event_log[created_at]' => 'Something New',
-//            'event_log[updated_at]' => 'Something New',
-//        ]);
-//
-//        self::assertResponseRedirects('/event/log/');
-//
-//        $fixture = $this->repository->findAll();
-//
-//        self::assertSame('Something New', $fixture[0]->getTitle());
-//        self::assertSame('Something New', $fixture[0]->getDescription());
-//        self::assertSame('Something New', $fixture[0]->getCreated_at());
-//        self::assertSame('Something New', $fixture[0]->getUpdated_at());
-//    }
-//
-//    public function testRemove(): void
-//    {
-//        $this->markTestIncomplete();
-//
-//        $originalNumObjectsInRepository = count($this->repository->findAll());
-//
-//        $fixture = new EventLog();
-//        $fixture->setTitle('My Title');
-//        $fixture->setDescription('My Title');
-//        $fixture->setCreated_at('My Title');
-//        $fixture->setUpdated_at('My Title');
-//
-//        $this->repository->add($fixture, true);
-//
-//        self::assertSame($originalNumObjectsInRepository + 1, count($this->repository->findAll()));
-//
-//        $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));
-//        $this->client->submitForm('Delete');
-//
-//        self::assertSame($originalNumObjectsInRepository, count($this->repository->findAll()));
-//        self::assertResponseRedirects('/event/log/');
-//    }
+
+        $this->repository->add($fixture, true);
+
+        self::assertSame($originalNumObjectsInRepository + 1, count($this->repository->findAll()));
+
+        $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));
+        $this->client->submitForm('Delete');
+
+        self::assertSame($originalNumObjectsInRepository, count($this->repository->findAll()));
+        self::assertResponseRedirects('/event/log/');
+    }
 }

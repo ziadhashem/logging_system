@@ -33,6 +33,8 @@ class EventLogController extends AbstractController
      */
     public function new(Request $request, EventLogRepository $eventLogRepository): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_ANONYMOUSLY');
+
         $eventLog = new EventLog();
         $form = $this->createForm(EventLogType::class, $eventLog);
         $form->handleRequest($request);
