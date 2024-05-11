@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Project{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2 class="text-center mt-5 mb-3">Show event log</h2>
+        <div class="card">
+            <div class="card-header">
+                <a class="btn btn-outline-info float-right" href="{{ path('event_log_index') }}">
+                    View All Logged Events
+                </a>
+            </div>
+            <div class="card-body">
+                <b class="text-muted">Title:</b>
+                <p>{{ event_log.title }}</p>
+                <b class="text-muted">Description:</b>
+                <p>{{ event_log.description }}</p>
+                <b class="text-muted">Date Created:</b>
+                <p>{{ event_log.createdAt ? event_log.createdAt|date('Y-m-d H:i:s') : '' }}</p>
+                <b class="text-muted">Date Updated:</b>
+                <p>{{ event_log.updatedAt ? event_log.updatedAt|date('Y-m-d H:i:s') : '' }}</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
